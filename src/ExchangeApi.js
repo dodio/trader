@@ -3,10 +3,15 @@ import config from './config';
 import dayjs from 'dayjs';
 import crypto from 'crypto';
 
-const apiURL = 'https://api.hbdm.com';
+const apiURL = 'http://api.hbdm.com';
 const { appkey, secret } = config.huobi;
 const request = axios.create({
     baseURL: apiURL,
+    timeout: 5e3,
+    proxy: {
+        host: '127.0.0.1',
+        port: 31210
+    }
 });
 request.interceptors.request.use(axiosConfig => {
     const params = axiosConfig.params || {};
@@ -14,7 +19,7 @@ request.interceptors.request.use(axiosConfig => {
         AccessKeyId: appkey,
         SignatureMethod: 'HmacSHA256',
         SignatureVersion: 2,
-        Timestamp: dayjs().utc().format('YYYY-MM-DDThh:mm:ss'),
+        Timestamp: dayjs().utc().format('YYYY-MM-DDTHH:mm:ss'),
     })
     const requestParams = [
         axiosConfig.method.toLocaleUpperCase(),
@@ -26,10 +31,13 @@ request.interceptors.request.use(axiosConfig => {
     const signature = crypto.createHmac("sha256", secret).update(requestParams, 'utf8').digest("base64");
     params.Signature = signature;
     axiosConfig.params = params;
+    console.log(`发起API请求：${axiosConfig.url}`);
     return axiosConfig;
 })
 
 request.interceptors.response.use(res => {
+    console.log(`API请求：${res.config.url}，正常返回。`);
+
     if(res.data.status !== 'ok') {
         const error = new Error(res.data.err_msg);
         error.response = res;
@@ -51,11 +59,17 @@ export function getPosition(symbol) {
 }
 
 export function makeOrder(data) {
-    return request.post('/api/v1/contract_order', data);
+    return request.post('/api/v1/contract_order', data, {
+        timeout: 30e3
+    });
 }
 
 export function makeOrders(data) {
-    return request.post('/api/v1/contract_batchorder', data);
+    return request.post('/api/v1/contract_batchorder', {
+        orders_data: data
+    }, {
+        timeout: 30e3
+    });
 }
 
 export function getKlines(data) {
@@ -71,5 +85,10 @@ export function getConstracts(params) {
 }
 
 export function cancelAllOrders(params) {
-    return request.post('/api/v1/contract_cancelall', params);
+    return request.post('/api/v1/contract_cancelall', params).catch(err => {
+        if(err.response && err.response.data && err.response.data.err_code === 1051) {
+            return [];
+        }
+        throw err;
+    });
 }

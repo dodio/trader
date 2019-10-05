@@ -5,40 +5,84 @@ import klinePeriods from './src/periods';
 dayjs.extend(dayjsPluginUTC);
 
 // 'this_week', // next_week, quarter
-
 const strategyConfig = {
     symbol: 'BTC',
     pair: 'BTC_CW',
     contractType: 'this_week',
-    periodToUse: '30min',
+    periodToUse: '60min',
     lever_rate: 20,
-    actionTime: 5, // 定义操作时间，即在什么时间段内进行开仓和平仓操作
-    openPositions: [{
-        percent: -0.03,
-        volume: 10 //
-    }]
+    actionTime: 2, // 定义操作时间，即在什么时间段内进行【开仓】和【平仓】操作
+    openPositions: [
+        {
+            percent: -0.0135,
+            volume: 50 //
+        },
+        {
+            percent: -0.0237,
+            volume: 50 //
+        },
+        {
+            percent: -0.0339,
+            volume: 150 //
+        },
+        {
+            percent: -0.0577,
+            volume: 300 //
+        },
+        {
+            percent: 0.0134,
+            volume: 50 //
+        },
+        {
+            percent: 0.0235,
+            volume: 50 //
+        },
+        {
+            percent: 0.0346,
+            volume: 150 //
+        },
+        {
+            percent: 0.0535,
+            volume: 300 //
+        },
+    ]
 }
 
 const context = {};
 
+// ExhangeApi.getAccountInfo().then(console.log.bind(console, '账户资产信息：'))
+
 main();
-async function main() {
-    await loop();
-    setTimeout(async () => {
-        main();
-    }, 1e3);
+function main() {
+    loop().then(() => {
+        setTimeout(() => {
+            main();
+        }, 1e3);
+    }).catch(err => {
+        console.log('发生错误：', err.message);
+        if(err.response && err.response.data) {
+            console.log('错误的请求配置信息：', JSON.stringify(err.response.config));
+            console.log('错误请求返回的结果：', JSON.stringify(err.response.data));
+        }
+        console.log('继续执行策略\n\n\n');
+        setTimeout(() => {
+            main();
+        }, 1e3);
+    });
 }
 
 async function loop() {
     await updateContract();
     await updateKline();
-    if(isJustBegin(context.kline) && context.lastOrderRequest !== context.kline.id) {
+    if(isJustBegin(context.kline, strategyConfig.actionTime) && context.lastOrderRequest !== context.kline.id) {
         await makeRequests();
         context.lastOrderRequest = context.kline.id;
-    } else if(isApproachEnd(context.kline) && context.lastCloseRequests !== context.kline.id) {
+    } else if(isApproachEnd(context.kline, strategyConfig.actionTime) && context.lastCloseRequests !== context.kline.id) {
         await cancelAllOrders();
         await closeAllPositions();
         context.lastCloseRequests = context.kline.id;
+    } else {
+        await checkHolding();
     }
 }
 
@@ -93,6 +137,7 @@ async function cancelAllOrders() {
 async function closeAllPositions() {
     const poistions = await ExhangeApi.getPosition('BTC');
     const thisContractPoistions = poistions.filter(p => p.contract_code === context.contract.contract_code);
+    console.log('当前持仓信息：', JSON.stringify(thisContractPoistions));
     const orders = thisContractPoistions.map(p => {
         return {
             contract_code: p.contract_code,
@@ -103,9 +148,13 @@ async function closeAllPositions() {
             offset: 'close',
         }
     });
-    console.log('平仓信息：', JSON.stringify(orders));
-    const rs = await makeOrders(orders);
-    console.log('平仓下单结果：', JSON.stringify(rs));
+    if(orders.length) {
+        console.log('【平仓】信息：', JSON.stringify(orders));
+        const rs = await makeOrders(orders);
+        console.log('【平仓】下单结果：', JSON.stringify(rs));
+    } else {
+        console.log('无持仓信息，不用【平仓】');
+    }
 }
 
 // 发起订单委托
@@ -117,12 +166,16 @@ async function makeRequests() {
             volume: cfg.volume,
             direction: cfg.percent > 0 ? 'sell' : 'buy',
             offset: 'open',
-            price: kline.open * (1 + cfg.percent),
-            lever_rate: cfg.lever_rate,
+            price: +((kline.open * (1 + cfg.percent)).toFixed(Math.log10(1 / context.contract.price_tick))),
+            lever_rate: strategyConfig.lever_rate,
             order_price_type: 'limit',
         }
     })
-    console.log('开仓订单：', JSON.stringify(orders));
+    console.log('【开仓】订单：', JSON.stringify(orders));
     const rs = await ExhangeApi.makeOrders(orders);
-    console.log('开仓订单结果：', JSON.stringify(rs));
+    console.log('【开仓】订单结果：', JSON.stringify(rs));
+}
+
+async function checkHolding() {
+
 }
