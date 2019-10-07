@@ -10,11 +10,14 @@ main();
 function main() {
     loop().catch(err => {
         console.error('发生错误：', err.message);
+        if(err.config) {
+            console.error(`请求错误地址：${err.config.url}`);
+        }
         if(err.response && err.response.data) {
             console.error('发生错误请求的配置信息：', JSON.stringify(err.response.config));
             console.error('错误请求返回的结果：', JSON.stringify(err.response.data));
         }
-        console.warn('继续执行策略\n\n\n');
+        console.warn('继续执行策略');
     }).then(() => {
         setTimeout(() => {
             main();
@@ -54,8 +57,11 @@ async function updateKline() {
         period: strategyConfig.periodToUse,
         size: 1,
     });
+    const old = context.kline;
     context.kline = rs[0];
-    console.log(`已更新最新${strategyConfig.periodToUse} K线信息:\n`, JSON.stringify(context.kline));
+    if(!old || old.id !== context.kline.id) {
+        console.log(`已更新最新${strategyConfig.periodToUse} K线信息:\n`, JSON.stringify(context.kline));
+    }
 }
 
 function isJustBegin(kline, min = 1) {

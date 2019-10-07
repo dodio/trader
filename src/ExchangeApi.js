@@ -31,12 +31,12 @@ request.interceptors.request.use(axiosConfig => {
     const signature = crypto.createHmac("sha256", secret).update(requestParams, 'utf8').digest("base64");
     params.Signature = signature;
     axiosConfig.params = params;
-    console.log(`发起API请求：${axiosConfig.url}`);
+    // console.log(`发起API请求：${axiosConfig.url}`);
     return axiosConfig;
 })
 
 request.interceptors.response.use(res => {
-    console.log(`API请求：${res.config.url}，正常返回。`);
+    // console.log(`API请求：${res.config.url}，正常返回。`);
 
     if(res.data.status !== 'ok') {
         const error = new Error(res.data.err_msg);
