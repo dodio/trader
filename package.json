@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node index.js"
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +19,7 @@
     "dayjs": "^1.8.16",
     "dayjs-plugin-utc": "^0.1.2",
     "lodash": "^4.17.15",
-    "nodejs-base64": "^1.0.3"
+    "nodejs-base64": "^1.0.3",
+    "pm2": "^3.5.1"
   }
 }

@@ -1,4 +1,10 @@
 export default {
+    '1min': {
+        timeInterval: 1 * 60 * 1e3, 
+   },
+   '5min': {
+        timeInterval: 5 * 60 * 1e3, 
+    },
     '15min': {
          timeInterval: 15 * 60 * 1e3, 
     },
