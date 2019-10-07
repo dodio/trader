@@ -1,7 +1,7 @@
 module.exports = {
     enabled: true,
-    symbol: 'ETH',
-    pair: 'ETH_CQ',
+    symbol: 'BTC',
+    pair: 'BTC_CQ',
     contractType: 'quarter',
     periodToUse: '5min',
     lever_rate: 20,
@@ -10,53 +10,53 @@ module.exports = {
     openPositions: [
         {
             percent: -0.0027,
-            volume: 50 //
+            volume: 20 //
         },
         {
             percent: -0.0048,
-            volume: 100 //
+            volume: 40 //
         },
         {
             percent: -0.0088,
-            volume: 100 //
+            volume: 40 //
         },
         {
             percent: -0.0168,
-            volume: 200 //
+            volume: 80 //
         },
         {
             percent: -0.0240,
-            volume: 400 //
+            volume: 160 //
         },
         
         {
             percent: -0.0380,
-            volume: 500 //
+            volume: 180 //
         },
         
         {
             percent: 0.0027,
-            volume: 50 //
+            volume: 20 //
         },
         {
             percent: 0.0047,
-            volume: 100 //
+            volume: 40 //
         },
         {
             percent: 0.0088,
-            volume: 100 //
+            volume: 40 //
         },
         {
             percent: 0.0131,
-            volume: 200 //
+            volume: 80 //
         },
         {
             percent: 0.0222,
-            volume: 300 //
+            volume: 160 //
         },
         {
             percent: 0.0360,
-            volume: 500 //
+            volume: 180 //
         },
     ]
 }

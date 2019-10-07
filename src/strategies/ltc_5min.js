@@ -1,7 +1,7 @@
 module.exports = {
     enabled: true,
-    symbol: 'ETH',
-    pair: 'ETH_CQ',
+    symbol: 'LTC',
+    pair: 'LTC_CQ',
     contractType: 'quarter',
     periodToUse: '5min',
     lever_rate: 20,
