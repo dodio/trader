@@ -6,7 +6,7 @@ module.exports = {
     periodToUse: '30min',
     lever_rate: 20,
     loopDelay: 1, //每次检测间隔时间
-    actionTime: 2, // 定义操作时间，即在什么时间段内进行【开仓】和【平仓】操作
+    actionTime: 30, // 定义操作时间，即在什么时间段内进行【开仓】和【平仓】操作
     openPositions: [
         {
             percent: -0.0067,

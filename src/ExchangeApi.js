@@ -8,10 +8,10 @@ const { appkey, secret } = config.huobi;
 const request = axios.create({
     baseURL: apiURL,
     timeout: 5e3,
-    proxy: !strategyConfig.noProxy ? strategyConfig.proxy || {
-        host: '127.0.0.1',
-        port: 31210
-    } : null
+    // proxy: !strategyConfig.noProxy ? strategyConfig.proxy || {
+    //     host: '127.0.0.1',
+    //     port: 31210
+    // } : null
 });
 request.interceptors.request.use(axiosConfig => {
     const params = axiosConfig.params || {};

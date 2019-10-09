@@ -7,7 +7,7 @@ module.exports = {
     contractType: 'quarter',
     periodToUse: '60min',
     lever_rate: 20,
-    actionTime: 2, // 定义操作时间，即在什么时间段内进行【开仓】和【平仓】操作
+    actionTime: 30, // 定义操作时间，即在什么时间段内进行【开仓】和【平仓】操作
     openPositions: [
         {
             percent: -0.0135,

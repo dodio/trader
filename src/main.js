@@ -2,9 +2,11 @@ import dayjs from 'dayjs';
 import dayjsPluginUTC from 'dayjs-plugin-utc'
 import * as ExhangeApi from './ExchangeApi';
 import klinePeriods from './periods';
-import consola from 'consola';
+import PriceSpeedAlert from './PriceSpeedAlert';
+import {sendSMS} from './sms';
 dayjs.extend(dayjsPluginUTC);
-consola.wrapConsole();
+
+const priceCounter = new PriceSpeedAlert();
 
 main();
 function main() {
@@ -59,20 +61,41 @@ async function updateKline() {
     });
     const old = context.kline;
     context.kline = rs[0];
+    const priceItem = context.kline.priceItem = priceCounter.pushPrice(context.kline.close);
     if(!old || old.id !== context.kline.id) {
         console.log(`已更新最新${strategyConfig.periodToUse} K线信息:\n`, JSON.stringify(context.kline));
     }
+    const threshold =  0.001;
+    const alertTime = priceCounter.intervals.find(ivt => priceItem.priceIncreases[ivt] && Math.abs(priceItem.priceIncreases[ivt]) >= threshold);
+    if(alertTime) {
+        const priceIncrease = priceItem.priceIncreases[alertTime];
+        const symbolCodes = {
+            BTC: '00',
+            EOS: '01',
+            LTC: '02',
+            ETH: '03',
+        };
+        const alertTimeStr = String(alertTime).length > 1 ? String(alertTime) : '0' + alertTime;
+        const code = symbolCodes[strategyConfig.symbol] + alertTimeStr;
+        const message = `在过去${alertTime}秒中，${strategyConfig.pair}合约价格剧烈变动：${(priceIncrease * 100).toFixed(2)}%`;
+        console.log(message);
+        sendSMS('TP1710262', '15196642414', code).catch(err => {
+            console.error(message);
+            console.error('发送短信失败:' + err.message);
+            console.error(err.config || err.response && err.response.config);
+        });
+    }
 }
 
-function isJustBegin(kline, min = 1) {
-    const time = min * 60 * 1e3;
+function isJustBegin(kline, sec = 1) {
+    const time = sec * 1e3;
     const now = Date.now();
     const beginTime = kline.id * 1e3;
     return now <= (beginTime + time);
 }
 
-function isApproachEnd(kline, min = 1) {
-    const time = min * 60 * 1e3;
+function isApproachEnd(kline, sec = 1) {
+    const time = sec * 1e3;
     const now = Date.now();
     const endTime = kline.id * 1e3 + klinePeriods[strategyConfig.periodToUse].timeInterval;
     return (endTime - time) <= now;
@@ -133,5 +156,5 @@ async function makeRequests() {
 }
 
 async function checkHolding() {
-
+    
 }
