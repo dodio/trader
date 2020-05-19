@@ -25,7 +25,7 @@ export default class PriceSpeedAlert {
         const presentIndex = priceBuffer.length - 1;
         this.intervals.forEach(ivt => {
             const oldPrice = priceBuffer[presentIndex - ivt];
-            priceItem.priceIncreases[ivt] = oldPrice ? (price - oldPrice) / oldPrice : undefined;
+            priceItem.priceIncreases[ivt] = oldPrice ? (price - oldPrice.price) / oldPrice.price : undefined;
         });
         return priceItem;
     }

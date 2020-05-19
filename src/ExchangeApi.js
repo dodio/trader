@@ -2,16 +2,19 @@ import axios from 'axios';
 import config from './config';
 import dayjs from 'dayjs';
 import crypto from 'crypto';
+import dayjsPluginUTC from 'dayjs-plugin-utc';
+dayjs.extend(dayjsPluginUTC);
 
+const strategyConfig = global.strategyConfig || {};
 const apiURL = 'http://api.hbdm.com';
 const { appkey, secret } = config.huobi;
 const request = axios.create({
     baseURL: apiURL,
     timeout: 5e3,
-    // proxy: !strategyConfig.noProxy ? strategyConfig.proxy || {
-    //     host: '127.0.0.1',
-    //     port: 31210
-    // } : null
+    proxy: !strategyConfig.noProxy ? strategyConfig.proxy || {
+        host: '127.0.0.1',
+        port: 31210
+    } : null
 });
 request.interceptors.request.use(axiosConfig => {
     const params = axiosConfig.params || {};
@@ -43,7 +46,7 @@ request.interceptors.response.use(res => {
         error.response = res;
         throw error;
     }
-    return res.data.data;
+    return res.data.data || res.data;
 })
 
 export function getAccountInfo(symbol) {
@@ -74,6 +77,12 @@ export function makeOrders(data) {
 
 export function getKlines(data) {
     return request.get('/market/history/kline', {
+        params: data
+    })
+}
+
+export function getTicker(data) {
+    return request.get('/market/detail/merged', {
         params: data
     })
 }

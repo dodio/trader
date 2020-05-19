@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import dayjsPluginUTC from 'dayjs-plugin-utc'
+import dayjsPluginUTC from 'dayjs-plugin-utc';
 import * as ExhangeApi from './ExchangeApi';
 import klinePeriods from './periods';
 import PriceSpeedAlert from './PriceSpeedAlert';
@@ -31,11 +31,11 @@ async function loop() {
     await updateContract();
     await updateKline();
     if(isJustBegin(context.kline, strategyConfig.actionTime) && context.lastOrderRequest !== context.kline.id) {
-        await makeRequests();
+        // await makeRequests();
         context.lastOrderRequest = context.kline.id;
     } else if(isApproachEnd(context.kline, strategyConfig.actionTime)) {
-        await cancelAllOrders();
-        await closeAllPositions();
+        // await cancelAllOrders();
+        // await closeAllPositions();
     } else {
         await checkHolding();
     }
@@ -52,6 +52,8 @@ async function updateContract() {
         console.log('更新合约信息：', JSON.stringify(context.contract));
     }
 }
+const timeDelay = 60 * 60 * 1e3;
+let lastTimeAlert;
 
 async function updateKline() {
     const rs = await ExhangeApi.getKlines({
@@ -65,7 +67,7 @@ async function updateKline() {
     if(!old || old.id !== context.kline.id) {
         console.log(`已更新最新${strategyConfig.periodToUse} K线信息:\n`, JSON.stringify(context.kline));
     }
-    const threshold =  0.001;
+    const threshold =  0.01;
     const alertTime = priceCounter.intervals.find(ivt => priceItem.priceIncreases[ivt] && Math.abs(priceItem.priceIncreases[ivt]) >= threshold);
     if(alertTime) {
         const priceIncrease = priceItem.priceIncreases[alertTime];
@@ -79,11 +81,18 @@ async function updateKline() {
         const code = symbolCodes[strategyConfig.symbol] + alertTimeStr;
         const message = `在过去${alertTime}秒中，${strategyConfig.pair}合约价格剧烈变动：${(priceIncrease * 100).toFixed(2)}%`;
         console.log(message);
-        sendSMS('TP1710262', '15196642414', code).catch(err => {
-            console.error(message);
-            console.error('发送短信失败:' + err.message);
-            console.error(err.config || err.response && err.response.config);
-        });
+        if(!lastTimeAlert || (lastTimeAlert + timeDelay ) < Date.now()) {
+            sendSMS('TP1710262', '15196642414', {code}).then(rs => {
+                console.log('发送短信结果：', rs);
+            }).catch(err => {
+                console.error(message);
+                console.error('发送短信失败:' + err.message);
+                console.error(err.config || err.response && err.response.config);
+            });
+            lastTimeAlert = Date.now();
+        } else {
+            console.log('近期已短信报警');
+        }
     }
 }
 

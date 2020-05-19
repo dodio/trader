@@ -1,0 +1,9 @@
+./node_modules/.bin/babel-node ./src/contract_arb.js BTC_NW BTC_CQ $1 $2
+./node_modules/.bin/babel-node ./src/contract_arb.js ETH_NW ETH_CQ $1 $2
+./node_modules/.bin/babel-node ./src/contract_arb.js BCH_NW BCH_CQ $1 $2
+./node_modules/.bin/babel-node ./src/contract_arb.js EOS_NW EOS_CQ $1 $2
+./node_modules/.bin/babel-node ./src/contract_arb.js LTC_NW LTC_CQ $1 $2
+./node_modules/.bin/babel-node ./src/contract_arb.js ETC_NW ETC_CQ $1 $2
+./node_modules/.bin/babel-node ./src/contract_arb.js XRP_NW XRP_CQ $1 $2
+./node_modules/.bin/babel-node ./src/contract_arb.js TRX_NW TRX_CQ $1 $2
+./node_modules/.bin/babel-node ./src/contract_arb.js BSV_NW BSV_CQ $1 $2

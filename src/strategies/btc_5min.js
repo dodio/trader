@@ -12,17 +12,17 @@ module.exports = {
         //     percent: -0.0027,
         //     volume: 20 //
         // },
-        {
-            percent: -0.0048,
-            volume: 40 //
-        },
-        {
-            percent: -0.0088,
-            volume: 40 //
-        },
+        // {
+        //     percent: -0.0048,
+        //     volume: 40 //
+        // },
+        // {
+        //     percent: -0.0088,
+        //     volume: 40 //
+        // },
         {
             percent: -0.0168,
-            volume: 80 //
+            volume: 160 //
         },
         {
             percent: -0.0240,
@@ -36,25 +36,25 @@ module.exports = {
         //     percent: 0.0027,
         //     volume: 20 //
         // },
-        {
-            percent: 0.0047,
-            volume: 40 //
-        },
-        {
-            percent: 0.0088,
-            volume: 40 //
-        },
+        // {
+        //     percent: 0.0047,
+        //     volume: 40 //
+        // },
+        // {
+        //     percent: 0.0088,
+        //     volume: 80 //
+        // },
         {
             percent: 0.0131,
-            volume: 80 //
-        },
-        {
-            percent: 0.0222,
             volume: 160 //
         },
         {
+            percent: 0.0222,
+            volume: 300 //
+        },
+        {
             percent: 0.0360,
-            volume: 180 //
+            volume: 300 //
         },
     ]
 }
